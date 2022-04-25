@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GCP Address AutoComplete</title>
+    <style>
+      .readonly {
+        background-color: gray;
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <label for="search">search : </label>
+      <input type="text" name="search" id="search" size="60" maxlength="60" autofocus />
+      <span> | </span>
+      <label for="zoom">zoom : </label>
+      <input type="text" name="zoom" id="zoom" size="2" maxlength="2" value="17" />
+      <span> | </span>
+      <label for="country">country : </label>
+      <select name="country" id="country">
+        <option value="us">USA</option>
+        <option value="kr">Korea</option>
+        <option value="ca">Canada</option>
+      </select>
+    </div>
+    <div>
+      <label for="state">state : </label>
+      <input type="text" name="state" id="state" size="10" maxlength="10" readonly class="readonly" />
+      <span> | </span>
+      <label for="city">city : </label>
+      <input type="text" name="city" id="city" size="10" maxlength="10" readonly class="readonly" />
+      <span> | </span>
+      <label for="lat">latitude : </label>
+      <input type="text" name="lat" id="lat" size="10" maxlength="10" readonly class="readonly" />
+      <span> | </span>
+      <label for="lng">longitude : </label>
+      <input type="text" name="lng" id="lng" size="10" maxlength="10" readonly class="readonly" />
+      <span> | </span>
+      <label for="zip">zipcode : </label>
+      <input type="text" name="zip" id="zip" size="10" maxlength="10" readonly class="readonly" />
+    </div>
+    <hr />
+    <div id="map" style="height: 400px"></div>
+    <script src="https://maps.googleapis.com/maps/api/js?libraries=places&key=AIzaSyAQhCe65GAwDT5hkLTnhNMDR70QZ6AXoMk"></script>
+    <script>
+      // initElemEvent
+      const initElemEvent = () => {
+        document.querySelector('#country').addEventListener('change', (evt) => {
+          initAddrAutoComplete(evt.target.value);
+        });
+      };
+
+      // initMap
+      let map = null;
+      let mapMarker = null;
+      const initMap = (lat = 39.10046516210457, lng = -94.57794725974294, zoom = 4) => {
+        const latLng = { lat, lng };
+
+        const mapOptions = {
+          center: latLng,
+          zoom,
+        };
+
+        map = new google.maps.Map(document.querySelector('#map'), mapOptions);
+
+        // initMapMarker
+        const initMapMarker = (latLng) => {
+          mapMarker = new google.maps.Marker({
+            position: latLng,
+            map,
+            title: `${lat}, ${lng}`,
+          });
+        };
+        initMapMarker(latLng);
+      };
+
+      // initAddrAutoComplete
+      const initAddrAutoComplete = (thisCountry) => {
+        const autoCompleteOptions = {
+          componentRestrictions: { country: [thisCountry] },
+          fields: ['address_components', 'geometry'],
+        };
+
+        const fillInAddress = () => {
+          if (!placesAutoComplete.getPlace()) {
+            return;
+          }
+
+          const addrGeoLoc = placesAutoComplete.getPlace().geometry.location;
+          const addrComp = placesAutoComplete.getPlace().address_components;
+
+          if (addrGeoLoc) {
+            const latVal = Number(addrGeoLoc.lat());
+            const lngVal = Number(addrGeoLoc.lng());
+            const zoomVal = Number(zoom.value);
+
+            lat.value = latVal;
+            lng.value = lngVal;
+
+            initMap(latVal, lngVal, zoomVal);
+          }
+
+          for (const comp of addrComp) {
+            const type = comp.types[0] ? comp.types[0] : '';
+            if (type) {
+              const shortName = comp.short_name;
+
+              if (type === 'locality') {
+                city.value = shortName;
+              }
+
+              if (type === 'administrative_area_level_1') {
+                state.value = shortName;
+              }
+
+              if (type === 'postal_code') {
+                zip.value = shortName;
+              }
+            }
+
+            search.focus();
+          }
+        };
+
+        const placesAutoComplete = new google.maps.places.Autocomplete(search, autoCompleteOptions);
+        placesAutoComplete.addListener('place_changed', fillInAddress);
+      };
+
+      const init = () => {
+        initElemEvent(); // 초기화 : Element 이벤트
+        initMap(); // 초기화 : 맵
+        initAddrAutoComplete(document.querySelector('#country').value); // 초기화 : 주소 자동완성
+      };
+
+      init();
+    </script>
+  </body>
+</html>
