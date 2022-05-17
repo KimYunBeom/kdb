@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Firebase Google Login</title>
+    <style>
+      .hide {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <a href="#">
+        <img src="./btn_google_signin_dark_normal_web.png" alt="구글 이미지" id="googleLoginButton" />
+      </a>
+    </div>
+    <div>
+      <button type="button" id="googleLogoutButton" class="hide">로그아웃</button>
+    </div>
+    <hr />
+    <div id="result" class="hide">
+      <div><span>uid : </span><span id="resultUid"></span></div>
+      <div><span>email : </span><span id="resultEmail"></span></div>
+      <div><span>name : </span><span id="resultName"></span></div>
+      <div>
+        <div>photo :</div>
+        <img id="resultPhoto" src="http://picsum.photos/96" alt="랜덤 이미지" />
+      </div>
+      <div><span>created : </span><span id="resultCreated"></span></div>
+      <div><span>last login : </span><span id="resultLastLogin"></span></div>
+    </div>
+    <script type="module">
+      // Import the functions you need from the SDKs you need
+      import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.8.1/firebase-app.js';
+      import {
+        GoogleAuthProvider,
+        getAuth,
+        signInWithPopup,
+        signOut,
+        setPersistence,
+      } from 'https://www.gstatic.com/firebasejs/9.8.1/firebase-auth.js';
+      // TODO: Add SDKs for Firebase products that you want to use
+      // https://firebase.google.com/docs/web/setup#available-libraries
+
+      // Your web app's Firebase configuration
+      const firebaseConfig = {
+        apiKey: 'YOUR_INFORMATION',
+        authDomain: 'YOUR_INFORMATION',
+        projectId: 'YOUR_INFORMATION',
+        storageBucket: 'YOUR_INFORMATION',
+        messagingSenderId: 'YOUR_INFORMATION',
+        appId: 'YOUR_INFORMATION',
+        measurementId: 'YOUR_INFORMATION',
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const provider = new GoogleAuthProvider();
+      const auth = getAuth();
+
+      const requestLogin = () => {
+        signInWithPopup(auth, provider)
+          .then((result) => {
+            // This gives you a Google Access Token. You can use it to access the Google API.
+            const credential = GoogleAuthProvider.credentialFromResult(result);
+            const token = credential.accessToken;
+            // The signed-in user info.
+            const user = result.user;
+
+            console.log('user :\n', JSON.stringify(user, null, 2));
+
+            const {
+              uid,
+              email,
+              displayName,
+              photoURL,
+              metadata: { creationTime },
+              metadata: { lastSignInTime },
+            } = user; // Destructuring Assignment. Object and nested object.
+            document.querySelector('#resultUid').textContent = uid;
+            document.querySelector('#resultEmail').textContent = email;
+            document.querySelector('#resultName').textContent = displayName;
+            document.querySelector('#resultPhoto').setAttribute('src', photoURL);
+            document.querySelector('#resultCreated').textContent = creationTime;
+            document.querySelector('#resultLastLogin').textContent = lastSignInTime;
+
+            document.querySelector('#result').classList.remove('hide');
+            document.querySelector('#googleLogoutButton').classList.remove('hide');
+          })
+          .catch((error) => {
+            // Handle Errors here.
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            // The email of the user's account used.
+            const email = error.email;
+            // The AuthCredential type that was used.
+            const credential = GoogleAuthProvider.credentialFromError(error);
+
+            console.log(errorCode, errorMessage);
+          });
+      };
+
+      const requestLogout = () => {
+        signOut(auth)
+          .then(() => {
+            window.location.assign('https://accounts.google.com/logout');
+          })
+          .catch((error) => {
+            alert('로그아웃에 실패했습니다.');
+          });
+      };
+
+      const initElemEvent = () => {
+        googleLoginButton.addEventListener('click', () => {
+          requestLogin();
+        });
+
+        googleLogoutButton.addEventListener('click', () => {
+          requestLogout();
+        });
+      };
+
+      const init = () => {
+        initElemEvent(); // 초기화 : Element 이벤트
+      };
+
+      init();
+    </script>
+  </body>
+</html>
