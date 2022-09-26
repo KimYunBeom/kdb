@@ -14,4 +14,7 @@ app.listen(PORT, () => {
 });
 
 const HelloController = require('./controller/HelloController');
+const TodoController = require('./controller/TodoController');
+
 app.use('/hello', HelloController);
+app.use('/todos', TodoController);
