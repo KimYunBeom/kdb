@@ -6,10 +6,12 @@ require('dotenv').config();
 const PORT = process.env.PORT || 8001;
 
 app.get('/', (req, res) => {
-  const name = req.query.name ? req.query.name : 'world';
-  res.json({ hello: name });
+  res.json({ result: 'OK' });
 });
 
 app.listen(PORT, () => {
   console.log(`Server is on port : ${PORT}`);
 });
+
+const HelloController = require('./controller/HelloController');
+app.use('/hello', HelloController);
