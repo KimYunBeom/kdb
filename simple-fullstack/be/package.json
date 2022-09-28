@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "cross-env PORT=8003 nodemon app.js"
+    "start": "cross-env node app.js",
+    "local": "cross-env nodemon app.js"
   },
   "keywords": [],
   "author": "",
