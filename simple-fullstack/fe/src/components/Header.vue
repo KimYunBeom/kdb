@@ -1,7 +1,13 @@
-<script setup>
-const title = '헤더';
-</script>
+<script setup></script>
 
 <template>
-  <div class="dark:text-white">{{ title }}</div>
+  <div class="">
+    <span>
+      <router-link to="/">Home</router-link>
+    </span>
+    <span> | </span>
+    <span>
+      <router-link to="/todo">Todo</router-link>
+    </span>
+  </div>
 </template>

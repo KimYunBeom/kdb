@@ -1,5 +1,5 @@
 <script setup></script>
 
 <template>
-  <div class="dark:text-white">푸터</div>
+  <div class="">yunbeom.kim@bespinglobal.com</div>
 </template>
